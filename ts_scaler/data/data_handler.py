@@ -5,10 +5,10 @@ from typing import Optional
 
 import pandas as pd
 from dotenv import load_dotenv
-from utils import ensure_snake_case_columns
 
 from ts_scaler.data.meta import Metadata
 from ts_scaler.data.s3_handler import S3Handler
+from ts_scaler.data.utils import ensure_snake_case_columns
 from ts_scaler.utils.logger import setup_logger
 
 load_dotenv()
