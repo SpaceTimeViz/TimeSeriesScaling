@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ts_scaler"
-version = "0.0.2"
+version = "0.0.3"
 description = ""
 authors = [
     "Joseph Wang <egpivo@gmail.com>",
