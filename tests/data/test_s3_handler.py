@@ -5,13 +5,12 @@ from unittest.mock import MagicMock, patch
 
 from ts_scaler.data.s3_handler import S3Handler
 
-
 class TestS3Handler(unittest.TestCase):
 
     @patch("boto3.resource")
     @patch("os.path.exists")
     @patch("os.makedirs")
-    def test_download_images_with_existing_local_dir(
+    def test_download_files_with_existing_local_dir(
         self, mock_makedirs, mock_exists, mock_boto_resource
     ):
         # Setup
@@ -26,10 +25,8 @@ class TestS3Handler(unittest.TestCase):
         ]
 
         # Instantiate the S3Handler
-        s3_handler = S3Handler("test_prefix/", "test_local_dir/")
-
-        # Call download_images
-        s3_handler.download_images()
+        s3_handler = S3Handler()
+        s3_handler.download_files("test_prefix/", "test_local_dir/")
 
         # Assertions
         mock_bucket.download_file.assert_any_call(
@@ -51,7 +48,7 @@ class TestS3Handler(unittest.TestCase):
         ]
 
         # Instantiate the S3Handler
-        s3_handler = S3Handler("test_prefix/", "test_local_dir/")
+        s3_handler = S3Handler()
 
         # Call rename_folder
         s3_handler.rename_folder("test_prefix/", "new_test_prefix/")
