@@ -6,11 +6,11 @@ from typing import Optional
 import pandas as pd
 from dotenv import load_dotenv
 
+from ts_scaler.data.meta import Metadata
 from ts_scaler.data.s3_handler import S3Handler
+from ts_scaler.data.utils import ensure_snake_case_columns
 from ts_scaler.utils.logger import setup_logger
 
-# Setup logger and load environment variables
-logger = setup_logger()
 load_dotenv()
 
 
@@ -73,6 +73,9 @@ class DataHandler:
             )
 
         combined_df = pd.concat(all_data_frames, ignore_index=True)
+        combined_df = ensure_snake_case_columns(
+            combined_df, Metadata.nyiso().column_mappings
+        )
         return combined_df
 
 
