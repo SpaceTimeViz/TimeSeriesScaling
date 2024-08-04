@@ -1,8 +1,11 @@
 import logging
 import os
 from typing import Optional
+
 import boto3
+
 from ts_scaler.utils.logger import setup_logger
+
 
 class S3Handler:
     def __init__(self, logger: Optional[logging.Logger] = None) -> None:
@@ -25,7 +28,7 @@ class S3Handler:
             self.logger.info(f"Created local folder {local_dir}.")
 
         # If a specific file is specified, download it directly
-        if s3_path.endswith('.csv'):
+        if s3_path.endswith(".csv"):
             target = os.path.join(local_dir, os.path.basename(s3_path))
             self.logger.debug(f"Downloading {s3_path} to {target}")
             try:
@@ -49,12 +52,18 @@ class S3Handler:
     def upload_file(self, file_path: str, s3_path: str):
         try:
             self.bucket.upload_file(file_path, s3_path)
-            self.logger.info(f"Uploaded {file_path} to s3://{self.bucket_name}/{s3_path}")
+            self.logger.info(
+                f"Uploaded {file_path} to s3://{self.bucket_name}/{s3_path}"
+            )
         except Exception as e:
-            self.logger.error(f"Failed to upload {file_path} to s3://{self.bucket_name}/{s3_path}: {e}")
+            self.logger.error(
+                f"Failed to upload {file_path} to s3://{self.bucket_name}/{s3_path}: {e}"
+            )
 
     def check_bucket_status(self):
-        self.logger.info(f"Bucket '{self.bucket_name}' exists and contains the following objects:")
+        self.logger.info(
+            f"Bucket '{self.bucket_name}' exists and contains the following objects:"
+        )
         for obj in self.bucket.objects.all():
             self.logger.info(f"- {obj.key}")
 
@@ -66,9 +75,13 @@ class S3Handler:
                 s3_path = os.path.join(s3_folder, relative_path)
                 try:
                     self.bucket.upload_file(local_path, s3_path)
-                    self.logger.info(f"Uploaded {local_path} to s3://{self.bucket_name}/{s3_path}")
+                    self.logger.info(
+                        f"Uploaded {local_path} to s3://{self.bucket_name}/{s3_path}"
+                    )
                 except Exception as e:
-                    self.logger.error(f"Failed to upload {local_path} to s3://{self.bucket_name}/{s3_path}: {e}")
+                    self.logger.error(
+                        f"Failed to upload {local_path} to s3://{self.bucket_name}/{s3_path}: {e}"
+                    )
 
     def rename_folder(self, old_prefix: str, new_prefix: str):
         for obj in self.bucket.objects.filter(Prefix=old_prefix):
@@ -76,7 +89,9 @@ class S3Handler:
             new_key = obj.key.replace(old_prefix, new_prefix, 1)
             try:
                 self.bucket.copy(copy_source, new_key)
-                self.logger.info(f"Renamed {obj.key} to {new_key} in s3://{self.bucket_name}")
+                self.logger.info(
+                    f"Renamed {obj.key} to {new_key} in s3://{self.bucket_name}"
+                )
             except Exception as e:
                 self.logger.error(f"Failed to rename {obj.key} to {new_key}: {e}")
         try:

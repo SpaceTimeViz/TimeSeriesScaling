@@ -1,7 +1,7 @@
 import logging
 
 
-def setup_logger(name: str ="ts_scaler.utils.logger")-> logging.Logger:
+def setup_logger(name: str = "ts_scaler.utils.logger") -> logging.Logger:
     if logging.getLogger(name).handlers:
         return logging.getLogger(name)
 
