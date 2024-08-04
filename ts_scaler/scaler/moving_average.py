@@ -26,4 +26,4 @@ class MovingAverageCalculator:
         df[ma_column] = df[value_column].rolling(window=self.window_size).mean()
         df[std_column] = df[value_column].rolling(window=self.window_size).std()
 
-        return df
+        return df.reset_index()

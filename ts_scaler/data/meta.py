@@ -13,5 +13,6 @@ class Metadata:
                 "Time Stamp": "time_stamp",
                 "Time Zone": "time_zone",
                 "Integrated Load": "integrated_load",
+                "Name": "zone_name",
             }
         )

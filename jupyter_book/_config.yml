@@ -1,0 +1,14 @@
+# Book settings
+execute:
+  execute_notebooks: 'off'
+sphinx:
+  config:
+    nb_output_stderr: 'remove'
+    jupyter_execute_notebooks: 'off'
+
+# Hide code cells with the tag `hide-input`
+hide_input: true
+
+title: "My Jupyter Book"
+author: "Author Name"
+logo: ""
