@@ -63,14 +63,6 @@ build() {
     source activate "${CONDA_ENV}"
     echo -e "${FG_YELLOW}Activating Conda environment '${CONDA_ENV}'${FG_RESET}"
 
-    # Check HDF5 dependency
-    if conda list | grep -q hdf5; then
-        echo -e "${FG_GREEN}HDF5 is installed.${FG_RESET}"
-    else
-        echo "${FG_RED}HDF5 is not installed.${FG_RESET}"
-        conda install -c conda-forge hdf5 -y
-    fi
-
     # Install packages
     echo -e "${FG_YELLOW}Installing packages${FG_RESET}"
     install_python_package "${PACKAGE_BASE_PATH}"

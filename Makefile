@@ -15,7 +15,7 @@ clean:
 ## Install development dependencies
 install-dev:
 	@echo "Installing development dependencies..."
-	@poetry install
+	@$(SHELL) envs/conda/build_conda_env.sh -c ts-scaler
 
 ## Run tests
 test:
