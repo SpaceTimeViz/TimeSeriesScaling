@@ -21,6 +21,7 @@ plotly = "^5.23.0"
 nbformat = "^5.10.4"
 jupyter-book = "^1.0.2"
 jupyterlab = "^4.2.4"
+bokeh = "^3.5.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.3.0"
