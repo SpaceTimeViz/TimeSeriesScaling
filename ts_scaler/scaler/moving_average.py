@@ -4,7 +4,7 @@ import pandas as pd
 
 
 class MovingAverageCalculator:
-    def __init__(self, window_size: int = 7):
+    def __init__(self, window_size: int = 168):
         self.window_size = window_size
 
     def calculate(
@@ -23,7 +23,11 @@ class MovingAverageCalculator:
         df[time_column] = pd.to_datetime(df[time_column])
         df.set_index(time_column, inplace=True)
 
-        df[ma_column] = df[value_column].rolling(window=self.window_size).mean()
-        df[std_column] = df[value_column].rolling(window=self.window_size).std()
+        df[ma_column] = (
+            df[value_column].rolling(window=self.window_size).mean().shift(1)
+        )
+        df[std_column] = (
+            df[value_column].rolling(window=self.window_size).std().shift(1)
+        )
 
         return df.reset_index()
