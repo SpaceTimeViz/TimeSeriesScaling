@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 EXECUTABLE := poetry run
 
 .PHONY: clean install-dev test run-local-jupyter help
@@ -6,7 +7,7 @@ EXECUTABLE := poetry run
 clean:
 	@echo "Cleaning up..."
 	@find . -type f -name '*.py[co]' -delete
-	@find . -type d -name __pycache__ -delete
+	@find . -type d -name '__pycache__' -delete
 	@rm -rf build/ dist/ .eggs/
 	@find . -name '*.egg-info' -exec rm -rf {} +
 	@rm -f .coverage
@@ -22,10 +23,10 @@ test:
 	@echo "Running tests..."
 	@$(EXECUTABLE) pytest --cov=timeseriesscaling
 
-## Jupyter server commands
+## Start Jupyter server locally
 run-local-jupyter:
 	@echo "Starting local Jupyter server..."
-	@$(EXECUTABLE) jupyter lab --port 8501
+	@$(SHELL) envs/jupyter/start_jupyter_lab.sh --port 8501
 
 ## Display help information
 help:
@@ -35,3 +36,4 @@ help:
 	@echo "  test                 : Run tests"
 	@echo "  run-local-jupyter    : Start Jupyter server locally"
 	@echo "  help                 : Display this help message"
+
