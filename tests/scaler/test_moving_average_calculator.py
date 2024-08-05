@@ -21,8 +21,9 @@ class TestMovingAverageCalculator(unittest.TestCase):
             self.df, time_column="time_stamp", value_column="integrated_load"
         )
 
-        # Expected results
+        # Expected results (shifted by one to match the shift in the method)
         expected_moving_average = [
+            None,
             None,
             None,
             150.0,
@@ -32,9 +33,9 @@ class TestMovingAverageCalculator(unittest.TestCase):
             383.33,
             283.33,
             166.67,
-            150.0,
         ]
         expected_moving_std = [
+            None,
             None,
             None,
             50.0,
@@ -44,7 +45,6 @@ class TestMovingAverageCalculator(unittest.TestCase):
             125.83,
             202.07,
             76.38,
-            50.0,
         ]
 
         # Convert expected results to Series with the same index as the result
