@@ -21,7 +21,7 @@ sphinx:
 
 # Execution settings
 execute:
-  execute_notebooks: "auto"
+  execute_notebooks: "off"
 
 # General settings
 hide_input: true
