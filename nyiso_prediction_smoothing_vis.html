@@ -392,12 +392,7 @@ document.write(`
 </div>
 </details>
 </div>
-<div class="cell tag_hide-input docutils container">
-<details class="hide above-input">
-<summary aria-label="Toggle hidden content">
-<span class="collapsed">Show code cell source</span>
-<span class="expanded">Hide code cell source</span>
-</summary>
+<div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Normalizer</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
@@ -480,28 +475,55 @@ document.write(`
     
     <span class="c1">#return {col: (np.mean(mse_results[col]), np.std(mse_results[col])/np.sqrt(traning_len)) for col in prediction_cols}</span>
     <span class="k">return</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">mse_results</span><span class="p">[</span><span class="n">col</span><span class="p">]),</span> <span class="mi">3</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">prediction_cols</span><span class="p">}</span>
-</pre></div>
-</div>
-</div>
-</details>
-</div>
-<div class="cell tag_hide-input docutils container">
-<details class="hide above-input">
-<summary aria-label="Toggle hidden content">
-<span class="collapsed">Show code cell source</span>
-<span class="expanded">Hide code cell source</span>
-</summary>
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;all_prediction_dfs.pkl&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">all_prediction_dfs</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Data loaded from pickle files successfully.&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</details>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Data loaded from pickle files successfully.
+
+
+<span class="k">def</span> <span class="nf">calculate_mse</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">[</span><span class="o">-</span><span class="mi">24</span><span class="p">:],</span> <span class="n">y_pred</span><span class="p">[</span><span class="o">-</span><span class="mi">24</span><span class="p">:])</span>
+
+<span class="k">def</span> <span class="nf">plot_prediction</span><span class="p">(</span><span class="n">plot_df</span><span class="p">,</span> <span class="n">zone</span><span class="p">):</span>
+    <span class="c1"># Rename the column for consistency</span>
+    <span class="n">plot_df</span> <span class="o">=</span> <span class="n">plot_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;NBEATS1&#39;</span><span class="p">:</span> <span class="s1">&#39;NBEATS - Reinv&#39;</span><span class="p">,</span>  <span class="c1"># Corrected to &#39;Reinv&#39; to match the previous context</span>
+    <span class="p">})</span>
+    
+    <span class="c1"># Reset index to make the timestamp a column</span>
+    <span class="n">plot_df</span> <span class="o">=</span> <span class="n">plot_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    
+    <span class="c1"># Calculate MSE for the last 24 values</span>
+    <span class="n">y_true</span> <span class="o">=</span> <span class="n">plot_df</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
+    <span class="n">mse_identity</span> <span class="o">=</span> <span class="n">calculate_mse</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">plot_df</span><span class="p">[</span><span class="s1">&#39;NBEATS - Identity&#39;</span><span class="p">])</span>
+    <span class="n">mse_reinv</span> <span class="o">=</span> <span class="n">calculate_mse</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">plot_df</span><span class="p">[</span><span class="s1">&#39;NBEATS - Reinv&#39;</span><span class="p">])</span>
+    <span class="n">mse_smoothing</span> <span class="o">=</span> <span class="n">calculate_mse</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">plot_df</span><span class="p">[</span><span class="s1">&#39;NBEATS - Smoothing&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Create the plot</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">figure</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;NYISO - </span><span class="si">{</span><span class="n">zone</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">x_axis_type</span><span class="o">=</span><span class="s1">&#39;datetime&#39;</span><span class="p">,</span> <span class="n">x_axis_label</span><span class="o">=</span><span class="s1">&#39;Timestamp [t]&#39;</span><span class="p">,</span> <span class="n">y_axis_label</span><span class="o">=</span><span class="s1">&#39;Load&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1200</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
+    
+    <span class="c1"># Define colors for the plot lines</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="n">Category10</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">plot_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)]</span>
+    
+    <span class="c1"># Add the true value line</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">ColumnDataSource</span><span class="p">(</span><span class="n">plot_df</span><span class="p">),</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">legend_label</span><span class="o">=</span><span class="s1">&#39;True Value&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Add the prediction lines with MSE in the legend</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;NBEATS - Identity&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">ColumnDataSource</span><span class="p">(</span><span class="n">plot_df</span><span class="p">),</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">legend_label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;NBEATS - Identity (MSE: </span><span class="si">{</span><span class="n">mse_identity</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;NBEATS - Reinv&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">ColumnDataSource</span><span class="p">(</span><span class="n">plot_df</span><span class="p">),</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">legend_label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;NBEATS - Reinv (MSE: </span><span class="si">{</span><span class="n">mse_reinv</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;NBEATS - Smoothing&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">ColumnDataSource</span><span class="p">(</span><span class="n">plot_df</span><span class="p">),</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">legend_label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;NBEATS - Smoothing (MSE: </span><span class="si">{</span><span class="n">mse_smoothing</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Legend formatting</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">title_text_font_size</span> <span class="o">=</span> <span class="s1">&#39;12pt&#39;</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">label_text_font_size</span> <span class="o">=</span> <span class="s1">&#39;10pt&#39;</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="s1">&#39;top_left&#39;</span>
+    
+    <span class="c1"># X-axis date formatting</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">formatter</span> <span class="o">=</span> <span class="n">DatetimeTickFormatter</span><span class="p">(</span>
+        <span class="n">days</span><span class="o">=</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">months</span><span class="o">=</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">years</span><span class="o">=</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">p</span>
 </pre></div>
 </div>
 </div>
@@ -515,7 +537,9 @@ document.write(`
 <span class="expanded">Hide code cell source</span>
 </summary>
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assuming all_prediction_dfs is a dictionary where each key is a zone name and the value is a list of DataFrames</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;all_prediction_dfs.pkl&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">all_prediction_dfs</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    
 <span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="n">zone</span><span class="p">:</span> <span class="n">calculate_overall_mse</span><span class="p">(</span><span class="n">zone_dfs</span><span class="p">)</span> <span class="k">for</span> <span class="n">zone</span><span class="p">,</span> <span class="n">zone_dfs</span> <span class="ow">in</span> <span class="n">all_prediction_dfs</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
 
 <span class="n">results</span>
@@ -605,10 +629,15 @@ document.write(`
 </section>
 <section id="visualization">
 <h2>Visualization<a class="headerlink" href="#visualization" title="Link to this heading">#</a></h2>
-<div class="cell docutils container">
+<div class="cell tag_hide-input docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell source</span>
+<span class="expanded">Hide code cell source</span>
+</summary>
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output_notebook</span><span class="p">()</span>
-
+<span class="n">zones</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">all_prediction_dfs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 <span class="n">initial_zone</span> <span class="o">=</span> <span class="n">zones</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">initial_sample_index</span> <span class="o">=</span> <span class="mi">0</span>
 
@@ -651,6 +680,7 @@ document.write(`
 </pre></div>
 </div>
 </div>
+</details>
 <div class="cell_output docutils container">
 <div class="output text_html">    <style>
         .bk-notebook-logo {
@@ -662,7 +692,7 @@ document.write(`
     </style>
     <div>
         <a href="https://bokeh.org" target="_blank" class="bk-notebook-logo"></a>
-        <span id="dea46aee-4211-4502-b8cb-1c6bff0f1f01">Loading BokehJS ...</span>
+        <span id="b5a7e170-79fe-4e37-8c55-a9b5c25bf754">Loading BokehJS ...</span>
     </div>
 </div><script type="application/javascript">'use strict';
 (function(root) {
@@ -827,7 +857,7 @@ const JS_MIME_TYPE = 'application/javascript';
      "</div>"}};
 
   function display_loaded(error = null) {
-    const el = document.getElementById("dea46aee-4211-4502-b8cb-1c6bff0f1f01");
+    const el = document.getElementById("b5a7e170-79fe-4e37-8c55-a9b5c25bf754");
     if (el != null) {
       const html = (() => {
         if (typeof root.Bokeh === "undefined") {
@@ -961,7 +991,7 @@ function(Bokeh) {
       console.log("Bokeh: BokehJS failed to load within specified timeout.");
       root._bokeh_failed_load = true;
     } else if (force !== true) {
-      const cell = $(document.getElementById("dea46aee-4211-4502-b8cb-1c6bff0f1f01")).parents('.cell').data().cell;
+      const cell = $(document.getElementById("b5a7e170-79fe-4e37-8c55-a9b5c25bf754")).parents('.cell').data().cell;
       cell.output_area.append_execute_result(NB_LOAD_WARNING)
     }
   }
@@ -975,7 +1005,7 @@ function(Bokeh) {
       run_inline_js();
     });
   }
-}(window));</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "baeb1e97b54a42bb8d3272e45e86c6e5", "version_major": 2, "version_minor": 0}</script></div>
+}(window));</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "f7695051e7454d3194cbfd0db40bcd75", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 </section>
 </section>
