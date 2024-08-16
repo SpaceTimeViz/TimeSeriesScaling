@@ -3,6 +3,11 @@ title: Time Series Scaling
 author: Wen-Ting Wang
 logo: ""
 
+repository:
+  url: https://github.com/SpaceTimeViz/TimeSeriesScaling
+  path_to_docs: "jupyter_book"
+  provider: "github"
+  
 # MyST settings
 parse:
   myst_enable_extensions:
@@ -20,8 +25,8 @@ sphinx:
     html_theme_options:
       launch_buttons:
         thebelab: true
-      path_to_docs: "docs"
-      repository_url: "https://github.com/<your-repo>"
+      path_to_docs: "jupyter_book"  # Ensure this points to the correct path
+      repository_url: "https://github.com/SpaceTimeViz/TimeSeriesScaling"
       repository_branch: "main"
       use_fullscreen_button: false
     html_js_files:
