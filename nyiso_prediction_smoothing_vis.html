@@ -381,7 +381,12 @@ document.write(`
 </div>
 </details>
 </div>
-<div class="cell docutils container">
+<div class="cell tag_hide-input docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell source</span>
+<span class="expanded">Hide code cell source</span>
+</summary>
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Normalizer</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
@@ -516,6 +521,7 @@ document.write(`
 </pre></div>
 </div>
 </div>
+</details>
 </div>
 <section id="overall-mse">
 <h2>Overall MSE<a class="headerlink" href="#overall-mse" title="Link to this heading">#</a></h2>
@@ -625,45 +631,17 @@ document.write(`
 <span class="expanded">Hide code cell source</span>
 </summary>
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">prepare_data</span><span class="p">(</span><span class="n">zone</span><span class="p">):</span>
-    <span class="c1"># Filter out empty DataFrames</span>
-    <span class="n">valid_dfs</span> <span class="o">=</span> <span class="p">[</span><span class="n">df</span> <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">all_prediction_dfs</span><span class="p">[</span><span class="n">zone</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">]</span>
-    
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">valid_dfs</span><span class="p">:</span>  <span class="c1"># If no valid DataFrames, return an empty DataFrame</span>
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-    
-    <span class="c1"># Concatenate all valid DataFrames in the list for the given zone</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">valid_dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    
-    <span class="c1"># Rename &#39;NBEATS1&#39; to &#39;NBEATS - Reinv&#39;</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;NBEATS1&#39;</span><span class="p">:</span> <span class="s1">&#39;NBEATS - Reinv&#39;</span><span class="p">})</span>
-    
-    <span class="c1"># Calculate residuals for each prediction model</span>
-    <span class="n">residuals</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">prediction_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;NBEATS - Identity&#39;</span><span class="p">,</span> <span class="s1">&#39;NBEATS - Reinv&#39;</span><span class="p">,</span> <span class="s1">&#39;NBEATS - Smoothing&#39;</span><span class="p">]</span>
-    
-    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">prediction_cols</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-            <span class="n">residuals</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">residuals</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
-    
-    <span class="c1"># Convert the residuals dictionary to a DataFrame and melt it for plotting</span>
-    <span class="n">residuals_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">residuals</span><span class="p">)</span>
-    <span class="n">residuals_df</span> <span class="o">=</span> <span class="n">residuals_df</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">var_name</span><span class="o">=</span><span class="s1">&#39;Model&#39;</span><span class="p">,</span> <span class="n">value_name</span><span class="o">=</span><span class="s1">&#39;Residuals&#39;</span><span class="p">)</span>
-    
-    <span class="k">return</span> <span class="n">residuals_df</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
+<span class="kn">import</span> <span class="nn">plotly.graph_objects</span> <span class="k">as</span> <span class="nn">go</span>
+<span class="kn">import</span> <span class="nn">ipywidgets</span> <span class="k">as</span> <span class="nn">widgets</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">clear_output</span>
 
-<span class="c1"># Prepare data for all zones and handle empty data</span>
-<span class="n">zones</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">all_prediction_dfs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-<span class="n">zone_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">zone</span><span class="p">:</span> <span class="n">prepare_data</span><span class="p">(</span><span class="n">zone</span><span class="p">)</span> <span class="k">for</span> <span class="n">zone</span> <span class="ow">in</span> <span class="n">zones</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">prepare_data</span><span class="p">(</span><span class="n">zone</span><span class="p">)</span><span class="o">.</span><span class="n">empty</span><span class="p">}</span>
+<span class="c1"># Assuming you have your zone_data dictionary prepared as before</span>
 
-<span class="c1"># Check if we have any valid data after filtering</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">zone_data</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No valid data available for any zone.&quot;</span><span class="p">)</span>
-
-<span class="c1"># Update the zones list to only include those with valid data</span>
-<span class="n">zones</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">zone_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="k">def</span> <span class="nf">prepare_data</span><span class="p">(</span><span class="n">zone</span><span class="p">):</span>
+    <span class="c1"># Assuming this function prepares your data</span>
+    <span class="c1"># For the example, I am just returning a sample dataframe</span>
+    <span class="k">return</span> <span class="n">zone_data</span><span class="p">[</span><span class="n">zone</span><span class="p">]</span>
 
 <span class="c1"># Function to create the plot using Plotly</span>
 <span class="k">def</span> <span class="nf">create_plot</span><span class="p">(</span><span class="n">selected_zone</span><span class="p">):</span>
@@ -705,7 +683,7 @@ document.write(`
 </div>
 </details>
 <div class="cell_output docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "81294d9d2ebf4761ab48b9aa6f23d58e", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "04acdbdedb0b43c49ad0a24e89c0b1e3", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "a034b2539e914d9d8972a87b372ab8ab", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "ff3f0a76027d4f4e858e0042c85dd9c8", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 </section>
 <section id="prediction">
@@ -718,6 +696,7 @@ document.write(`
 </summary>
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output_notebook</span><span class="p">()</span>
+
 <span class="n">zones</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">all_prediction_dfs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 <span class="n">initial_zone</span> <span class="o">=</span> <span class="n">zones</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">initial_sample_index</span> <span class="o">=</span> <span class="mi">0</span>
@@ -755,7 +734,6 @@ document.write(`
 <span class="n">dropdown_sample_index</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">update_plot</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
 
 <span class="n">layout</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">VBox</span><span class="p">([</span><span class="n">dropdown_zone</span><span class="p">,</span> <span class="n">dropdown_sample_index</span><span class="p">,</span> <span class="n">output_prediction</span><span class="p">])</span>
-
 <span class="n">display</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
 <span class="n">update_plot</span><span class="p">()</span>
 </pre></div>
@@ -773,7 +751,7 @@ document.write(`
     </style>
     <div>
         <a href="https://bokeh.org" target="_blank" class="bk-notebook-logo"></a>
-        <span id="dc3c9f49-5953-432a-9071-b70343f64a52">Loading BokehJS ...</span>
+        <span id="ba78b8af-31ee-4ace-af33-eef2547548be">Loading BokehJS ...</span>
     </div>
 </div><script type="application/javascript">'use strict';
 (function(root) {
@@ -938,7 +916,7 @@ const JS_MIME_TYPE = 'application/javascript';
      "</div>"}};
 
   function display_loaded(error = null) {
-    const el = document.getElementById("dc3c9f49-5953-432a-9071-b70343f64a52");
+    const el = document.getElementById("ba78b8af-31ee-4ace-af33-eef2547548be");
     if (el != null) {
       const html = (() => {
         if (typeof root.Bokeh === "undefined") {
@@ -1072,7 +1050,7 @@ function(Bokeh) {
       console.log("Bokeh: BokehJS failed to load within specified timeout.");
       root._bokeh_failed_load = true;
     } else if (force !== true) {
-      const cell = $(document.getElementById("dc3c9f49-5953-432a-9071-b70343f64a52")).parents('.cell').data().cell;
+      const cell = $(document.getElementById("ba78b8af-31ee-4ace-af33-eef2547548be")).parents('.cell').data().cell;
       cell.output_area.append_execute_result(NB_LOAD_WARNING)
     }
   }
@@ -1086,7 +1064,7 @@ function(Bokeh) {
       run_inline_js();
     });
   }
-}(window));</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "1f1d4cb339054b93a1afd2bc7b4867d6", "version_major": 2, "version_minor": 0}</script></div>
+}(window));</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "fe38e5229c7b44bda995daeee0144f8b", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 </section>
 </section>
