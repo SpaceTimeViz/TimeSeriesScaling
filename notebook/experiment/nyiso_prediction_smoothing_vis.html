@@ -1,0 +1,769 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>NYISO Load Prediction - Gaussian Kernel &#8212; Time Series Scaling</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'notebook/experiment/nyiso_prediction_smoothing_vis';</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="NYISO Load Prediction" href="nyiso_prediction_pca_vis.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../intro.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Time Series Scaling</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="nyiso_analysis.html">NYISO Load Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nyiso_prediction_pca_vis.html">NYISO Load Prediction</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">NYISO Load Prediction - Gaussian Kernel</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/notebook/experiment/nyiso_prediction_smoothing_vis.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>NYISO Load Prediction - Gaussian Kernel</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overall-mse">Overall MSE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#residual-boxplot">Residual Boxplot</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prediction">Prediction</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="nyiso-load-prediction-gaussian-kernel">
+<h1>NYISO Load Prediction - Gaussian Kernel<a class="headerlink" href="#nyiso-load-prediction-gaussian-kernel" title="Link to this heading">#</a></h1>
+<ul class="simple">
+<li><p>Objective: Utilize the NBEATS model to predict NYISO load data using historical data from 2013-01-01 to 2023-12-30.</p></li>
+<li><p>Training Scheme</p>
+<ul>
+<li><p>Random Sampling: For each sample, randomly select a date and use the 24 time steps (hours) as test data. The preceding 200 days are used as training data.</p></li>
+<li><p>Repetition: Sample 100 unique pairs of training and test datasets.</p></li>
+<li><p>Scaling and Prediction: Apply scaling methods on the training data, train the NBEATS model, and then use it to generate predictions for the test data.</p></li>
+</ul>
+</li>
+<li><p>Scaling methods: <a class="reference external" href="https://nixtlaverse.nixtla.io/neuralforecast/common.scalers.html">definition</a></p>
+<ul>
+<li><p><a class="reference external" href="https://nixtlaverse.nixtla.io/neuralforecast/common.scalers.html#std-statistics"><code class="docutils literal notranslate"><span class="pre">identity</span></code></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">revin</span></code>:  learnable normalization parameters are added on top of the usual normalization technique.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smoothing</span></code>: Apply Gaussian kernel with <span class="math notranslate nohighlight">\(\sigma =  448\)</span></p></li>
+</ul>
+</li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">ipywidgets</span> <span class="k">as</span> <span class="nn">widgets</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">clear_output</span>
+<span class="kn">from</span> <span class="nn">bokeh.models</span> <span class="kn">import</span> <span class="n">ColumnDataSource</span><span class="p">,</span> <span class="n">DatetimeTickFormatter</span>
+<span class="kn">from</span> <span class="nn">bokeh.palettes</span> <span class="kn">import</span> <span class="n">Category10</span>
+<span class="kn">from</span> <span class="nn">bokeh.plotting</span> <span class="kn">import</span> <span class="n">figure</span><span class="p">,</span> <span class="n">show</span><span class="p">,</span> <span class="n">output_notebook</span>
+<span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="kn">import</span> <span class="n">gaussian_filter1d</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_squared_error</span>
+
+<span class="c1"># Suppress warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Normalizer</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the normalizer with kernel smoothing parameters.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        - window_size: The size of the window for rolling standard deviation.</span>
+<span class="sd">        - sigma: The standard deviation for Gaussian kernel smoothing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_size</span> <span class="o">=</span> <span class="n">window_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smoothed_y</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">std_y</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="c1"># Fill NaN values before fitting</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;ffill&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;bfill&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="c1"># Apply Gaussian kernel smoothing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smoothed_y</span> <span class="o">=</span> <span class="n">gaussian_filter1d</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">)</span>
+
+        <span class="c1"># Calculate rolling standard deviation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">std_y</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">window_size</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;bfill&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="c1"># Fill NaN values before transforming</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;ffill&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;bfill&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothed_y</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">std_y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The normalizer must be fitted before calling transform.&quot;</span><span class="p">)</span>
+
+        <span class="n">smoothed_y_partial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothed_y</span><span class="p">[</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">):]</span>
+        <span class="n">std_y_partial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">std_y</span><span class="p">[</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">):]</span>
+
+        <span class="c1"># Handle any NaN or zero values in std_y_partial to avoid extreme values</span>
+        <span class="n">std_y_partial</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">std_y_partial</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">std_y_partial</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="n">std_y_partial</span><span class="p">)</span>
+
+        <span class="n">normalized_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">smoothed_y_partial</span><span class="p">)</span> <span class="o">/</span> <span class="n">std_y_partial</span>
+
+        <span class="c1"># Forward-fill any remaining NaN values in normalized_y</span>
+        <span class="n">normalized_y</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">normalized_y</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;ffill&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="k">return</span> <span class="n">normalized_y</span>
+
+    <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">inverse_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalized_y</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothed_y</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">std_y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The normalizer must be fitted before calling inverse_transform.&quot;</span><span class="p">)</span>
+
+        <span class="n">smoothed_y_partial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothed_y</span><span class="p">[</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">normalized_y</span><span class="p">):]</span>
+        <span class="n">std_y_partial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">std_y</span><span class="p">[</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">normalized_y</span><span class="p">):]</span>
+
+        <span class="n">denormalized_y</span> <span class="o">=</span> <span class="n">normalized_y</span> <span class="o">*</span> <span class="n">std_y_partial</span> <span class="o">+</span> <span class="n">smoothed_y_partial</span>
+        <span class="k">return</span> <span class="n">denormalized_y</span>
+
+
+<span class="k">def</span> <span class="nf">calculate_overall_mse</span><span class="p">(</span><span class="n">zone_dfs</span><span class="p">,</span> <span class="n">true_col</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span>
+                          <span class="n">prediction_cols</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;NBEATS - Identity&#39;</span><span class="p">,</span> <span class="s1">&#39;NBEATS - Reinv&#39;</span><span class="p">,</span> <span class="s1">&#39;NBEATS - Smoothing&#39;</span><span class="p">]):</span>
+    <span class="n">mse_results</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">prediction_cols</span><span class="p">}</span>
+    <span class="n">traning_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">zone_dfs</span><span class="p">)</span>
+
+    <span class="c1"># Loop through all the DataFrames in the list</span>
+    <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">zone_dfs</span><span class="p">:</span>
+        <span class="c1"># Ensure the DataFrame is properly formatted and named</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;NBEATS1&#39;</span><span class="p">:</span> <span class="s1">&#39;NBEATS - Reinv&#39;</span><span class="p">})</span>
+
+        <span class="c1"># Drop rows with NaN values in any of the relevant columns</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">true_col</span><span class="p">]</span> <span class="o">+</span> <span class="n">prediction_cols</span><span class="p">)</span>
+
+        <span class="n">y_true</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">true_col</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">24</span><span class="p">:]</span>
+
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">prediction_cols</span><span class="p">:</span>
+            <span class="n">mse</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">24</span><span class="p">:])</span>
+            <span class="n">mse_results</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mse</span><span class="p">)</span>
+
+    <span class="c1">#return {col: (np.mean(mse_results[col]), np.std(mse_results[col])/np.sqrt(traning_len)) for col in prediction_cols}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">mse_results</span><span class="p">[</span><span class="n">col</span><span class="p">]),</span> <span class="mi">3</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">prediction_cols</span><span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">calculate_mse</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">[</span><span class="o">-</span><span class="mi">24</span><span class="p">:],</span> <span class="n">y_pred</span><span class="p">[</span><span class="o">-</span><span class="mi">24</span><span class="p">:])</span>
+
+
+<span class="k">def</span> <span class="nf">plot_prediction</span><span class="p">(</span><span class="n">plot_df</span><span class="p">,</span> <span class="n">zone</span><span class="p">):</span>
+    <span class="c1"># Rename the column for consistency</span>
+    <span class="n">plot_df</span> <span class="o">=</span> <span class="n">plot_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;NBEATS1&#39;</span><span class="p">:</span> <span class="s1">&#39;NBEATS - Reinv&#39;</span><span class="p">,</span>  <span class="c1"># Corrected to &#39;Reinv&#39; to match the previous context</span>
+    <span class="p">})</span>
+
+    <span class="c1"># Reset index to make the timestamp a column</span>
+    <span class="n">plot_df</span> <span class="o">=</span> <span class="n">plot_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+    <span class="c1"># Calculate MSE for the last 24 values</span>
+    <span class="n">y_true</span> <span class="o">=</span> <span class="n">plot_df</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
+    <span class="n">mse_identity</span> <span class="o">=</span> <span class="n">calculate_mse</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">plot_df</span><span class="p">[</span><span class="s1">&#39;NBEATS - Identity&#39;</span><span class="p">])</span>
+    <span class="n">mse_reinv</span> <span class="o">=</span> <span class="n">calculate_mse</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">plot_df</span><span class="p">[</span><span class="s1">&#39;NBEATS - Reinv&#39;</span><span class="p">])</span>
+    <span class="n">mse_smoothing</span> <span class="o">=</span> <span class="n">calculate_mse</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">plot_df</span><span class="p">[</span><span class="s1">&#39;NBEATS - Smoothing&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Create the plot</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">figure</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;NYISO - </span><span class="si">{</span><span class="n">zone</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">x_axis_type</span><span class="o">=</span><span class="s1">&#39;datetime&#39;</span><span class="p">,</span> <span class="n">x_axis_label</span><span class="o">=</span><span class="s1">&#39;Timestamp [t]&#39;</span><span class="p">,</span> <span class="n">y_axis_label</span><span class="o">=</span><span class="s1">&#39;Load&#39;</span><span class="p">,</span>
+               <span class="n">width</span><span class="o">=</span><span class="mi">1200</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
+
+    <span class="c1"># Define colors for the plot lines</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="n">Category10</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">plot_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)]</span>
+
+    <span class="c1"># Add the true value line</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">ColumnDataSource</span><span class="p">(</span><span class="n">plot_df</span><span class="p">),</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">legend_label</span><span class="o">=</span><span class="s1">&#39;True Value&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Add the prediction lines with MSE in the legend</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;NBEATS - Identity&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">ColumnDataSource</span><span class="p">(</span><span class="n">plot_df</span><span class="p">),</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+           <span class="n">legend_label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;NBEATS - Identity (MSE: </span><span class="si">{</span><span class="n">mse_identity</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;NBEATS - Reinv&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">ColumnDataSource</span><span class="p">(</span><span class="n">plot_df</span><span class="p">),</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+           <span class="n">legend_label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;NBEATS - Reinv (MSE: </span><span class="si">{</span><span class="n">mse_reinv</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;NBEATS - Smoothing&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">ColumnDataSource</span><span class="p">(</span><span class="n">plot_df</span><span class="p">),</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+           <span class="n">legend_label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;NBEATS - Smoothing (MSE: </span><span class="si">{</span><span class="n">mse_smoothing</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Legend formatting</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">title_text_font_size</span> <span class="o">=</span> <span class="s1">&#39;12pt&#39;</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">label_text_font_size</span> <span class="o">=</span> <span class="s1">&#39;10pt&#39;</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="s1">&#39;top_left&#39;</span>
+
+    <span class="c1"># X-axis date formatting</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">formatter</span> <span class="o">=</span> <span class="n">DatetimeTickFormatter</span><span class="p">(</span>
+        <span class="n">days</span><span class="o">=</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">months</span><span class="o">=</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">years</span><span class="o">=</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">p</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="overall-mse">
+<h2>Overall MSE<a class="headerlink" href="#overall-mse" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;all_prediction_dfs.pkl&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">all_prediction_dfs</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="n">zone</span><span class="p">:</span> <span class="n">calculate_overall_mse</span><span class="p">(</span><span class="n">zone_dfs</span><span class="p">)</span> <span class="k">for</span> <span class="n">zone</span><span class="p">,</span> <span class="n">zone_dfs</span> <span class="ow">in</span> <span class="n">all_prediction_dfs</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+
+<span class="n">results</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="residual-boxplot">
+<h2>Residual Boxplot<a class="headerlink" href="#residual-boxplot" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">prepare_data</span><span class="p">(</span><span class="n">zone</span><span class="p">):</span>
+    <span class="c1"># Filter out empty DataFrames</span>
+    <span class="n">valid_dfs</span> <span class="o">=</span> <span class="p">[</span><span class="n">df</span> <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">all_prediction_dfs</span><span class="p">[</span><span class="n">zone</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">valid_dfs</span><span class="p">:</span>  <span class="c1"># If no valid DataFrames, return an empty DataFrame</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="c1"># Concatenate all valid DataFrames in the list for the given zone</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">valid_dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Rename &#39;NBEATS1&#39; to &#39;NBEATS - Reinv&#39;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;NBEATS1&#39;</span><span class="p">:</span> <span class="s1">&#39;NBEATS - Reinv&#39;</span><span class="p">})</span>
+
+    <span class="c1"># Calculate residuals for each prediction model</span>
+    <span class="n">residuals</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">prediction_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;NBEATS - Identity&#39;</span><span class="p">,</span> <span class="s1">&#39;NBEATS - Reinv&#39;</span><span class="p">,</span> <span class="s1">&#39;NBEATS - Smoothing&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">prediction_cols</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">residuals</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">residuals</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
+
+    <span class="c1"># Convert the residuals dictionary to a DataFrame and melt it for plotting</span>
+    <span class="n">residuals_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">residuals</span><span class="p">)</span>
+    <span class="n">residuals_df</span> <span class="o">=</span> <span class="n">residuals_df</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">var_name</span><span class="o">=</span><span class="s1">&#39;Model&#39;</span><span class="p">,</span> <span class="n">value_name</span><span class="o">=</span><span class="s1">&#39;Residuals&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">residuals_df</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+
+
+<span class="c1"># Prepare data for all zones and handle empty data</span>
+<span class="n">zones</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">all_prediction_dfs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="n">zone_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">zone</span><span class="p">:</span> <span class="n">prepare_data</span><span class="p">(</span><span class="n">zone</span><span class="p">)</span> <span class="k">for</span> <span class="n">zone</span> <span class="ow">in</span> <span class="n">zones</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">prepare_data</span><span class="p">(</span><span class="n">zone</span><span class="p">)</span><span class="o">.</span><span class="n">empty</span><span class="p">}</span>
+
+
+<span class="c1"># Function to create the plot using Plotly</span>
+<span class="k">def</span> <span class="nf">create_plot</span><span class="p">(</span><span class="n">selected_zone</span><span class="p">):</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="n">zone_data</span><span class="p">[</span><span class="n">selected_zone</span><span class="p">],</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Model&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Residuals&#39;</span><span class="p">,</span>
+                 <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Residuals Distribution for </span><span class="si">{</span><span class="n">selected_zone</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">1200</span><span class="p">,</span>  <span class="c1"># Adjust width as needed</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">700</span>  <span class="c1"># Adjust height as needed</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span>
+
+
+<span class="c1"># Function to update the plot based on dropdown selection</span>
+<span class="k">def</span> <span class="nf">update_plot</span><span class="p">(</span><span class="n">change</span><span class="p">):</span>
+    <span class="n">selected_zone</span> <span class="o">=</span> <span class="n">dropdown_zone</span><span class="o">.</span><span class="n">value</span>
+    <span class="k">with</span> <span class="n">output_widget</span><span class="p">:</span>
+        <span class="n">clear_output</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">create_plot</span><span class="p">(</span><span class="n">selected_zone</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="c1"># Dropdown widget for zone selection</span>
+<span class="n">dropdown_zone</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
+    <span class="n">options</span><span class="o">=</span><span class="n">zones</span><span class="p">,</span>
+    <span class="n">value</span><span class="o">=</span><span class="n">zones</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Select Zone:&#39;</span><span class="p">,</span>
+    <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;description_width&#39;</span><span class="p">:</span> <span class="s1">&#39;initial&#39;</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1"># Output widget to display the plot</span>
+<span class="n">output_widget</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Output</span><span class="p">()</span>
+
+<span class="c1"># Observe changes in the dropdown</span>
+<span class="n">dropdown_zone</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">update_plot</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+
+<span class="c1"># Initial display</span>
+<span class="n">display</span><span class="p">(</span><span class="n">dropdown_zone</span><span class="p">,</span> <span class="n">output_widget</span><span class="p">)</span>
+
+<span class="c1"># Display the initial plot</span>
+<span class="k">with</span> <span class="n">output_widget</span><span class="p">:</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">create_plot</span><span class="p">(</span><span class="n">zones</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="prediction">
+<h2>Prediction<a class="headerlink" href="#prediction" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output_notebook</span><span class="p">()</span>
+
+<span class="n">zones</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">all_prediction_dfs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="n">initial_zone</span> <span class="o">=</span> <span class="n">zones</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">initial_sample_index</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="n">output_prediction</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Output</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">update_plot</span><span class="p">(</span><span class="n">change</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">selected_zone</span> <span class="o">=</span> <span class="n">dropdown_zone</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">selected_sample_index</span> <span class="o">=</span> <span class="n">dropdown_sample_index</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="c1"># Update prediction plot</span>
+    <span class="k">with</span> <span class="n">output_prediction</span><span class="p">:</span>
+        <span class="n">clear_output</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">plot_df</span> <span class="o">=</span> <span class="n">all_prediction_dfs</span><span class="p">[</span><span class="n">selected_zone</span><span class="p">][</span><span class="n">selected_sample_index</span><span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;ds&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">168</span><span class="p">:]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+            <span class="s2">&quot;unique_id&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">fig_prediction</span> <span class="o">=</span> <span class="n">plot_prediction</span><span class="p">(</span><span class="n">plot_df</span><span class="p">,</span> <span class="n">selected_zone</span><span class="p">)</span>
+        <span class="n">show</span><span class="p">(</span><span class="n">fig_prediction</span><span class="p">,</span> <span class="n">notebook_handle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="c1"># Dropdown for selecting zone</span>
+<span class="n">dropdown_zone</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
+    <span class="n">options</span><span class="o">=</span><span class="n">zones</span><span class="p">,</span>
+    <span class="n">value</span><span class="o">=</span><span class="n">initial_zone</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Select Zone:&#39;</span><span class="p">,</span>
+    <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;description_width&#39;</span><span class="p">:</span> <span class="s1">&#39;initial&#39;</span><span class="p">}</span>
+<span class="p">)</span>
+<span class="n">dropdown_zone</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">update_plot</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+
+<span class="c1"># Dropdown for selecting sample index</span>
+<span class="n">sample_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_prediction_dfs</span><span class="p">[</span><span class="n">initial_zone</span><span class="p">])))</span>
+<span class="n">dropdown_sample_index</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
+    <span class="n">options</span><span class="o">=</span><span class="n">sample_indices</span><span class="p">,</span>
+    <span class="n">value</span><span class="o">=</span><span class="n">initial_sample_index</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Select Sample Index:&#39;</span><span class="p">,</span>
+    <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;description_width&#39;</span><span class="p">:</span> <span class="s1">&#39;initial&#39;</span><span class="p">}</span>
+<span class="p">)</span>
+<span class="n">dropdown_sample_index</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">update_plot</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+
+<span class="n">layout</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">VBox</span><span class="p">([</span><span class="n">dropdown_zone</span><span class="p">,</span> <span class="n">dropdown_sample_index</span><span class="p">,</span> <span class="n">output_prediction</span><span class="p">])</span>
+<span class="n">display</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+<span class="n">update_plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "ts-scaler"
+        },
+        kernelOptions: {
+            name: "ts-scaler",
+            path: "./notebook/experiment"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'ts-scaler'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="nyiso_prediction_pca_vis.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">NYISO Load Prediction</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overall-mse">Overall MSE</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#residual-boxplot">Residual Boxplot</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prediction">Prediction</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Wen-Ting Wang
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
