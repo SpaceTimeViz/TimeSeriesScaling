@@ -1,5 +1,6 @@
 format: jb-book
 root: intro
 chapters:
-  - file: nyiso_analysis
-  - file: nyiso_prediction_smoothing_vis
+  - file: notebook/experiment/nyiso_analysis
+  - file: notebook/experiment/nyiso_prediction_pca_vis
+  - file: notebook/experiment/nyiso_prediction_smoothing_vis
