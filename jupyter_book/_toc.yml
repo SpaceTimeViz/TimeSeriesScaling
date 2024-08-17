@@ -1,5 +1,5 @@
 format: jb-book
 root: intro
 chapters:
-  - file: nyiso_analysis
-  - file: nyiso_prediction
+  - file: notebook/experiment/nyiso_analysis
+  - file: notebook/experiment/nyiso_prediction_pca
